@@ -10,7 +10,12 @@ This is the repository of Software Engineering Lab.
 
 
 ## Document
-Start the server:
+* Every time you change the models, remember to apply those changes to the database:
+```
+python3 manage.py migrate
+```
+
+* Start the server:
 ```
 python3 manage.py runserver
 ```
