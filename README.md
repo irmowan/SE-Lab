@@ -8,3 +8,10 @@ This is the repository of Software Engineering Lab.
 * [Google Material Design](https://www.google.com/design/spec/material-design/introduction.html)
 * [Material Design Lite](https://getmdl.io/)
 
+
+## Document
+Start the server:
+```
+python3 manage.py runserver
+```
+
