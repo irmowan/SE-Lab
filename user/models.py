@@ -4,5 +4,8 @@ from django.db import models
 
 class Users(models.Model):
     # TODO
-    x = 1
+    userId = models.CharField(max_length=11,primary_key=True)
+    userName = models.CharField(max_length=30)
+    userType = models.DateTimeField('date published')
+
 
