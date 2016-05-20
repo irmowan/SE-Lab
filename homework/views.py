@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-
+from homework.models import Assignments, Submissions
+from datetime import *
 # Create your views here.
 
 def index(request, course_id):
@@ -21,18 +22,38 @@ def delete(request, course_id):
 def detail(request, course_id, assignment_id):
     return HttpResponse("This is the detail page of assignment {} of course {}.".format(assignment_id, course_id))
 
-def update(request, course_id, assignment_id):
+def update(request, course_id, assignment_id, new_content):
     # A post request to modify the assignment in the database
+    assignment = Assignments.objects.get(pk=assignment_id)
+    assignment.update(description=new_content)
+    assignment.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
-def submit(request, course_id, assignment_id):
+def submit(request, assignment_id, student_id, submission_content):
     # A post request to insert/update the submission in the database
+    if Assignments.objects.get(assignmentId=assignment_id, studentId=student_id) != null:
+        course_id = Assignments.objects.get(pk=assignment_id).course
+        submit_time = datetime.now()
+        submission = Submissions(assignmentId=assignment_id, studentId=student_id, content=submission_content, submissionTime=submit_time)
+        submission.save()
+    else:
+        submission = Assignments.objects.get(assignmentId=assignment_id, studentId=student_id)
+        submission.update(content=submission_content)
+        submission.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
-def submission(request, course_id, assignment_id, submission_id):
+def submission(request, submission_id):
+    # Detail of the submission
+    submission = Submissions.objects.get(pk=submission_id)
+    assignment_id = submission.assignmentId
+    assignment = Assignments.objects.get(pk=submission.assignmentId)
+    course_id = assignment.course
     return HttpResponse("This is the detail page of submission {} of assignment {} of course {}.".format(submission_id, assignment_id, course_id))
 
-def score(request, course_id, assignment_id, submission_id):
+def score(request, course_id, assignment_id, submission_id, student_id, score):
     # A post request to add/update the score of the submission in the database
+    submission = Submissions.objects.get(pk=submission_id)
+    submission.update(score=score)
+    # TODO: Check score satisfy 0<=score<=100
+    submission.save()
     return HttpResponseRedirect(reverse("homework:submission", args=(course_id, assignment_id, submission_id)))
-

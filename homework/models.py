@@ -16,7 +16,6 @@ class Submissions(models.Model):
     assignmentId = models.ForeignKey(Assignments, on_delete=models.CASCADE)
     studentId = models.ForeignKey(Users, on_delete=models.CASCADE)
     content = models.TextField()
-    SubmissionTime = models.DateTimeField()
+    submissionTime = models.DateTimeField()
     score = models.IntegerField()
     comments = models.TextField()
-
