@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = 'homepage'
+
+AUTH_USER_MODEL = 'user.Users'
 
 # Application definition
 

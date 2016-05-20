@@ -6,6 +6,6 @@ from course.models import Courses
 
 def index(request, course_id):
     course = Courses.objects.get(pk=course_id)
-    response = "Name: {} <br/> Teacher: {} <br/> Number of students: {}".format(course.name, course.teacher.name, course.selection_set.count())
+    response = "Name: {} <br/> Teacher: {} <br/> Number of students: {}".format(course.name, course.teacher.name, course.selections_set.count())
     return HttpResponse(response)
 

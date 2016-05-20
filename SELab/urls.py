@@ -21,6 +21,7 @@ import user.views, course.views
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name="user/homepage.html"), name='homepage'),
     url(r'^login/$', user.views.login),
+    url(r'^logout/$', user.views.logout),
     url(r'^user/$', user.views.welcome, name="welcome"),
     url(r'^user/(?P<course_id>\d+)/$', course.views.index),
     url(r'^user/(?P<course_id>\d+)/homework/', include("homework.urls")),

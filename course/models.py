@@ -11,7 +11,7 @@ class Courses(models.Model):
     def __str__(self):
         return self.name
 
-class Selection(models.Model):
+class Selections(models.Model):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     student = models.ForeignKey(Users, on_delete=models.CASCADE)
 
