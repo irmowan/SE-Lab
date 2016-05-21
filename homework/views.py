@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from homework.models import Assignments, Submissions
-from datetime import *
+import datetime
 # Create your views here.
 
 def index(request, course_id):
@@ -13,7 +13,7 @@ def new(request, course_id):
 
 def create(request, course_id):
     # A post request to insert the new assignment into the database
-	# get message from Httprequest 
+	# get message from Httprequest
 	assignment_name = request.post['assignmentname']
 	assignment_description = request.post['description']
 	assignment_addTime = datetime.now()
@@ -63,6 +63,8 @@ def submission(request, submission_id):
 
 def score(request, course_id, assignment_id, submission_id, student_id, score):
     # A post request to add/update the score of the submission in the database
+    if score < 0 or score > 100:
+        return HttpResponse("The score is illegal! Please check again.")
     submission = Submissions.objects.get(pk=submission_id)
     submission.update(score=score)
     # TODO: Check score satisfy 0<=score<=100
