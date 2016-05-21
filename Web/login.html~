@@ -13,12 +13,13 @@
     {
         var content;
         content='<div class="content">'
-           +'<span id="sub0">Sign up!</span>'
+           +'<span id="sub0">welcome!</span>'
                 +'<label id=\"sub1\">Username:</label>'
                 +'<input id=\"sub3\" class=\"sdw\" TYPE=TEXT NAME=username >'
                 +'<Br> </Br>'
                 +'<label id=\"sub2\">Password:</label> <input id=\"sub4\" class=\"sdw\" TYPE=TEXT NAME=password >'
                 +'<Br> </Br>'
+                +'<P>'
                 +'<button class="mdl-button mdl-js-button">'
   +'Submit'
 +'</button>'
