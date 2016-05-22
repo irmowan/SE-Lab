@@ -18,11 +18,13 @@ def login(request):
     else:
         return HttpResponse("Login fail!")
 
+@login_required
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse("homepage"))
 
 @login_required
 def welcome(request):
-    return HttpResponse("Hello {}!".format(request.user.name))
+    data = {"name": request.user.name, "email": request.user.email}
+    return HttpResponse(str(data))
 

@@ -13,21 +13,21 @@ def new(request, course_id):
 
 def create(request, course_id):
     # A post request to insert the new assignment into the database
-	# get message from Httprequest
-	assignment_name = request.post['assignmentname']
-	assignment_description = request.post['description']
-	assignment_addTime = datetime.now()
-	assignment_deadlineTime = request.post['deadlineTime']
-	assignment = Assignments(course = course_id,name = assignment_name,description = assignment_description,addTime = assignment_addTime,deadlineTime = assignment_deadlineTime)
-	assignment.save()
+    # get message from Httprequest
+    assignment_name = request.post['assignmentname']
+    assignment_description = request.post['description']
+    assignment_addTime = datetime.now()
+    assignment_deadlineTime = request.post['deadlineTime']
+    assignment = Assignments(course = course_id,name = assignment_name,description = assignment_description,addTime = assignment_addTime,deadlineTime = assignment_deadlineTime)
+    assignment.save()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 def delete(request, course_id):
     # A post request to delete the selected assignments from the database
-	# get assignment_id from Httprequest
-	assignment_id = request.post['delete_assignment_id']
-	if Assignments.objects.get(pk=assignment_id)!=null:
-		Assignments.objects.get(pk=assignment_id).delete()
+    # get assignment_id from Httprequest
+    assignment_id = request.post['delete_assignment_id']
+    if Assignments.objects.get(pk=assignment_id)!=null:
+        Assignments.objects.get(pk=assignment_id).delete()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 def detail(request, course_id, assignment_id):
