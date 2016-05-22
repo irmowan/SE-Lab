@@ -33,40 +33,54 @@ def delete(request, course_id):
 def detail(request, course_id, assignment_id):
     return HttpResponse("This is the detail page of assignment {} of course {}.".format(assignment_id, course_id))
 
-def update(request, course_id, assignment_id, new_content):
+def update(request, course_id, assignment_id):
     # A post request to modify the assignment in the database
+    if request.user.type != 'teacher':
+        raise Http404("Only the teacher of the course could modify the assignemnt.")
+    new_content = request.post['content']
     assignment = Assignments.objects.get(pk=assignment_id)
     assignment.update(description=new_content)
     assignment.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
-def submit(request, assignment_id, student_id, submission_content):
+def submit(request, course_id, assignment_id):
     # A post request to insert/update the submission in the database
+    if request.user.type != 'student':
+        raise Http404("Only students of this course could sumbit the assignment.")
+    student_id = request.post['student_id']
+    submission_content = request.post['content']
     if Assignments.objects.get(assignmentId=assignment_id, studentId=student_id) != null:
+        # Insert the submission
         course_id = Assignments.objects.get(pk=assignment_id).course
         submit_time = datetime.now()
         submission = Submissions(assignmentId=assignment_id, studentId=student_id, content=submission_content, submissionTime=submit_time)
         submission.save()
     else:
+        # Update the submission
         submission = Assignments.objects.get(assignmentId=assignment_id, studentId=student_id)
         submission.update(content=submission_content)
         submission.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
-def submission(request, submission_id):
+def submission(request, course_id, assignment_id, submission_id):
     # Detail of the submission
+    if request.user.type != 'teacher':
+        raise Http404("You cannot access the details of al")
     submission = Submissions.objects.get(pk=submission_id)
     assignment_id = submission.assignmentId
     assignment = Assignments.objects.get(pk=submission.assignmentId)
     course_id = assignment.course
     return HttpResponse("This is the detail page of submission {} of assignment {} of course {}.".format(submission_id, assignment_id, course_id))
 
-def score(request, course_id, assignment_id, submission_id, student_id, score):
+def score(request, course_id, assignment_id, submission_id):
     # A post request to add/update the score of the submission in the database
+    if request.user.type != 'teacher':
+        raise Http404("Only teacher could score the assignments.")
+    student_id = request.post['student_id']
+    score = request.post['score']
     if score < 0 or score > 100:
-        return HttpResponse("The score is illegal! Please check again.")
+        raise Http404("The score is illegal! Please check again.")
     submission = Submissions.objects.get(pk=submission_id)
     submission.update(score=score)
-    # TODO: Check score satisfy 0<=score<=100
     submission.save()
     return HttpResponseRedirect(reverse("homework:submission", args=(course_id, assignment_id, submission_id)))
