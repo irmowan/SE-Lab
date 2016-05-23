@@ -12,10 +12,17 @@ class Assignments(models.Model):
     addTime = models.DateTimeField()
     deadlineTime = models.DateTimeField(null=True)
 
+    def __str__(self):
+        return self.name
+
 class Submissions(models.Model):
-    assignmentId = models.ForeignKey(Assignments, on_delete=models.CASCADE)
-    studentId = models.ForeignKey(Users, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignments, on_delete=models.CASCADE)
+    student = models.ForeignKey(Users, on_delete=models.CASCADE)
     content = models.TextField()
     submissionTime = models.DateTimeField()
-    score = models.IntegerField()
-    comments = models.TextField()
+    score = models.IntegerField(null=True)
+    comments = models.TextField(blank=True)
+
+    def __str__(self):
+        return str(self.assignment) + ": " + str(self.student)
+

@@ -1,9 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
-from homework.models import Assignments, Submissions
 from django.contrib.auth.decorators import login_required
-import datetime
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+
+from homework.models import Assignments, Submissions
+from course.models import Courses, Selections
+
 # Create your views here.
 
 @login_required
@@ -12,51 +16,69 @@ def index(request, course_id):
 
 @login_required
 def new(request, course_id):
+    if request.user.type == "student":
+        raise Http404("Student can't create an assignment.")
     return HttpResponse("A empty page for the teacher to input new assignment.")
 
 @login_required
 def create(request, course_id):
-    # A post request to insert the new assignment into the database
-    # get message from Httprequest
     course = get_object_or_404(Courses, pk=course_id)
     if request.user.type == "student":
         raise Http404("Student can't create an assignment.")
-    else:
-        if course.teacher.id != request.user.id:
-            raise Http404("You can't create assignment for others' course.")
-        else:
-            assignment_name = request.post['assignmentname']
-            assignment_description = request.post['description']
-            assignment_addTime = datetime.now()
-            assignment_deadlineTime = request.post['deadlineTime']
-            assignment = Assignments(course = course_id,name = assignment_name,description = assignment_description,addTime = assignment_addTime,deadlineTime = assignment_deadlineTime)
-            if len(assignment_name)>30:
-                raise Http404("Assignment's name is too long.")
-            else:
-                assignment.save()
+    if course.teacher.id != request.user.id:
+        raise Http404("You can't create assignments of others' course.")
+
+    name = request.POST['assignmentName']
+    description = request.POST['description']
+    addTime = datetime.now()
+    deadlineTime = request.POST['deadlineTime']
+    assignment = Assignments.objects.create(course=course, name=name, description=description, addTime=addTime, deadlineTime=deadlineTime)
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 @login_required
 def delete(request, course_id):
-    # A post request to delete the selected assignments from the database
-    # get assignment_id from Httprequest
-	course = get_object_or_404(Courses, pk=course_id)
+    course = get_object_or_404(Courses, pk=course_id)
     if request.user.type == "student":
         raise Http404("Student can't delete an assignment.")
-    else:
-        if course.teacher.id != request.user.id:
-            raise Http404("You can't delete assignment for others' course.")
-        else:
-            assignment_id = request.post['delete_assignment_id']
-            if Assignments.objects.get(pk=assignment_id)!=null:
-                Assignments.objects.get(pk=assignment_id).delete()
-            else:
-                raise Http404("Assignment doesn't exist.")
+    if course.teacher.id != request.user.id:
+        raise Http404("You can't delete assignments of others' course.")
+
+    assignment_id = request.POST['id']
+    assignment = get_object_or_404(Assignments, pk=assignment_id)
+    assignment.delete()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 @login_required
 def detail(request, course_id, assignment_id):
-    return HttpResponse("This is the detail page of assignment {} of course {}.".format(assignment_id, course_id))
+    assignment = get_object_or_404(Assignments, pk=assignment_id)
+    if assignment.course.id != int(course_id):
+        raise Http404("The assignent doesn't belong to the course.")
+    data = {
+        "assignmentName": assignment.name,
+        "courseName": assignment.course.name,
+        "teacherName": assignment.course.teacher.name,
+        "description": assignment.description,
+        "addTime": assignment.addTime,
+        "deadlineTime": assignment.deadlineTime,
+    }
+    if request.user.type == "student":
+        if not Selections.objects.filter(course_id=course_id, student_id=request.user.id):
+            raise Http404("You have not selected the course.")
+        submission = Submissions.objects.get(assignment_id=assignment_id, student_id=request.user.id)
+        if submission is None:
+            data["submissionStatus"] = False
+        else:
+            data["submissionStatus"] = True
+            data["content"] = submission.content
+            data["submissionTime"] = submission.submissionTime
+            data["score"] = submission.score
+            data["comments"] = submission.comments
+    else:
+        if assignment.course.teacher.id != request.user.id:
+            raise Http404("You can't access assignments of others' course.")
+        submissions = Submissions.objects.filter(assignment_id=assignment_id)
+        data["submissions"] = [{"name": x.student.name, "score": x.score} for x in submissions]
+    return HttpResponse(str(data))
 
 @login_required
 def update(request, course_id, assignment_id):

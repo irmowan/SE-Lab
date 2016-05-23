@@ -7,8 +7,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def login(request):
-    user = auth.authenticate(id="13307130319", password="qwerty")
-    #user = auth.authenticate(id=request.POST['id'], password=request.POST['password'])
+    user = auth.authenticate(id=request.POST['id'], password=request.POST['password'])
     if user is not None:
         if user.is_active:
             auth.login(request, user)
