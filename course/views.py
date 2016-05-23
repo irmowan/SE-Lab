@@ -11,14 +11,12 @@ def index(request, course_id):
     course = get_object_or_404(Courses, pk=course_id)
     data = {'name': course.name}
     if request.user.type == "teacher":
-        if course.teacher.id == request.user.id:
-            data['count'] = course.selections_set.count()
-        else:
+        if course.teacher.id != request.user.id:
             raise Http404("You can't access others' course.")
+        data['count'] = course.selections_set.count()
     else:
-        if Selections.objects.filter(course_id=course_id, student_id=request.user.id):
-            data['teacherName'] = course.teacher.name
-        else:
+        if not Selections.objects.filter(course_id=course_id, student_id=request.user.id):
             raise Http404("You have not selected the course.")
+        data['teacherName'] = course.teacher.name
     return HttpResponse(str(data))
 

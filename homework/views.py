@@ -2,15 +2,19 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from homework.models import Assignments, Submissions
+from django.contrib.auth.decorators import login_required
 import datetime
 # Create your views here.
 
+@login_required
 def index(request, course_id):
     return HttpResponse("This is the index page of homework of course {}.".format(course_id))
 
+@login_required
 def new(request, course_id):
     return HttpResponse("A empty page for the teacher to input new assignment.")
 
+@login_required
 def create(request, course_id):
     # A post request to insert the new assignment into the database
     # get message from Httprequest
@@ -22,6 +26,7 @@ def create(request, course_id):
     assignment.save()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
+@login_required
 def delete(request, course_id):
     # A post request to delete the selected assignments from the database
     # get assignment_id from Httprequest
@@ -30,9 +35,11 @@ def delete(request, course_id):
         Assignments.objects.get(pk=assignment_id).delete()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
+@login_required
 def detail(request, course_id, assignment_id):
     return HttpResponse("This is the detail page of assignment {} of course {}.".format(assignment_id, course_id))
 
+@login_required
 def update(request, course_id, assignment_id):
     # A post request to modify the assignment in the database
     if request.user.type != 'teacher':
@@ -43,6 +50,7 @@ def update(request, course_id, assignment_id):
     assignment.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
+@login_required
 def submit(request, course_id, assignment_id):
     # A post request to insert/update the submission in the database
     if request.user.type != 'student':
@@ -62,6 +70,7 @@ def submit(request, course_id, assignment_id):
         submission.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
+@login_required
 def submission(request, course_id, assignment_id, submission_id):
     # Detail of the submission
     if request.user.type != 'teacher':
@@ -72,6 +81,7 @@ def submission(request, course_id, assignment_id, submission_id):
     course_id = assignment.course
     return HttpResponse("This is the detail page of submission {} of assignment {} of course {}.".format(submission_id, assignment_id, course_id))
 
+@login_required
 def score(request, course_id, assignment_id, submission_id):
     # A post request to add/update the score of the submission in the database
     if request.user.type != 'teacher':
