@@ -18,21 +18,40 @@ def new(request, course_id):
 def create(request, course_id):
     # A post request to insert the new assignment into the database
     # get message from Httprequest
-    assignment_name = request.post['assignmentname']
-    assignment_description = request.post['description']
-    assignment_addTime = datetime.now()
-    assignment_deadlineTime = request.post['deadlineTime']
-    assignment = Assignments(course = course_id,name = assignment_name,description = assignment_description,addTime = assignment_addTime,deadlineTime = assignment_deadlineTime)
-    assignment.save()
+	course = get_object_or_404(Courses, pk=course_id)
+	if request.user.type == "student":
+		raise Http404("Student can't create an assignment.")
+	else:
+		if course.teacher.id != request.user.id:
+			raise Http404("You can't create assignment for others' course.")
+		else:
+			assignment_name = request.post['assignmentname']
+			assignment_description = request.post['description']
+			assignment_addTime = datetime.now()
+			assignment_deadlineTime = request.post['deadlineTime']
+			assignment = Assignments(course = course_id,name = assignment_name,description = assignment_description,addTime = assignment_addTime,deadlineTime = assignment_deadlineTime)
+			if len(assignment_name)>30:
+				raise Http404("Assignment's name is too long.")
+			else:
+				assignment.save()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 @login_required
 def delete(request, course_id):
     # A post request to delete the selected assignments from the database
     # get assignment_id from Httprequest
-    assignment_id = request.post['delete_assignment_id']
-    if Assignments.objects.get(pk=assignment_id)!=null:
-        Assignments.objects.get(pk=assignment_id).delete()
+	course = get_object_or_404(Courses, pk=course_id)
+	if request.user.type == "student":
+		raise Http404("Student can't delete an assignment.")
+	else:
+		if course.teacher.id != request.user.id:
+			raise Http404("You can't delete assignment for others' course.")
+		else:
+			assignment_id = request.post['delete_assignment_id']
+			if Assignments.objects.get(pk=assignment_id)!=null:
+				Assignments.objects.get(pk=assignment_id).delete()
+			else:
+				raise Http404("Assignment doesn't exist.")
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
 @login_required
@@ -43,7 +62,7 @@ def detail(request, course_id, assignment_id):
 def update(request, course_id, assignment_id):
     # A post request to modify the assignment in the database
     if request.user.type != 'teacher':
-        raise Http404("Only the teacher of the course could modify the assignemnt.")
+        raise Http404("Only the teacher of the course could modify the assignment.")
     new_content = request.post['content']
     assignment = Assignments.objects.get(pk=assignment_id)
     assignment.update(description=new_content)
