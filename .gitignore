@@ -2,6 +2,7 @@ __pycache__
 *~
 
 db.sqlite3
+*.pyc
 *_initial.py
 *_auto_*.py
 .DS_Store
