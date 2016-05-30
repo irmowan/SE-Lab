@@ -70,18 +70,20 @@ color:white
 </head>
 
 <body class="login">
+    <form action="/login/" method="post">
         <div class='content'>
         <span id="sub0">welcome!</span>
-                <label id="sub1">Username:</label> <input id="sub3" class="sdw" TYPE=TEXT NAME=username ><Br />
-                <label id="sub2">Password:</label> <input id="sub4" class="sdw" TYPE=TEXT NAME=password > <Br />
+                <label id="sub1">Username:</label> <input id="sub3" class="sdw" TYPE=TEXT NAME=id ><Br />
+                <label id="sub2">Password:</label> <input id="sub4" class="sdw" TYPE=TEXT NAME=password ><Br />
         <P>
-                <button class="mdl-button mdl-js-button">
-  Log in
-</button>
-<ee id='sub5'>|</ee>
-                 <button1 class="mdl-button mdl-js-button" onclick="appendHomework()">
-  Sign up!
-</button1>
-</div>
+                <button class="mdl-button mdl-js-button" type="submit">
+                    Log in
+                </button>
+                <ee id='sub5'>|</ee>
+                <button1 class="mdl-button mdl-js-button" onclick="appendHomework()">
+                    Sign up!
+                </button1>
+        </div>
+    </form>
 </body>
 </html>

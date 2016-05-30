@@ -19,4 +19,3 @@ def index(request, course_id):
             raise Http404("You have not selected the course.")
         data['teacherName'] = course.teacher.name
     return HttpResponse(str(data))
-
