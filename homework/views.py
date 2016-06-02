@@ -10,6 +10,7 @@ from course.models import Courses, Selections
 
 # Create your views here.
 
+# Unfinished
 @login_required
 def index(request, course_id):
     return HttpResponse("This is the index page of homework of course {}.".format(course_id))
