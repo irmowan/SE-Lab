@@ -28,10 +28,13 @@ def create(request, course_id):
     if course.teacher.id != request.user.id:
         raise Http404("You can't create assignments of others' course.")
 
-    name = request.POST['assignmentName']
-    description = request.POST['description']
+    name = request.POST.get('assignmentName')
+    description = request.POST.get('description')
+    if (name is None or description is None) :
+        raise Http404('Invalid request')
+
     addTime = datetime.now()
-    deadlineTime = request.POST['deadlineTime']
+    deadlineTime = request.POST.get('deadlineTime')
     assignment = Assignments.objects.create(course=course, name=name, description=description, addTime=addTime, deadlineTime=deadlineTime)
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
 
@@ -42,8 +45,7 @@ def delete(request, course_id):
         raise Http404("Student can't delete an assignment.")
     if course.teacher.id != request.user.id:
         raise Http404("You can't delete assignments of others' course.")
-
-    assignment_id = request.POST['id']
+    assignment_id = request.POST.get('id')
     assignment = get_object_or_404(Assignments, pk=assignment_id)
     assignment.delete()
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
@@ -88,7 +90,7 @@ def update(request, course_id, assignment_id):
     # A post request to modify the assignment in the database
     if request.user.type != 'teacher':
         raise Http404("Only the teacher of the course could modify the assignment.")
-    new_content = request.POST['content']
+    new_content = request.POST.get('content')
     assignment = Assignments.objects.get(pk=assignment_id)
     assignment.description = new_content
     assignment.save()
@@ -100,18 +102,21 @@ def submit(request, course_id, assignment_id):
     if request.user.type != 'student':
         raise Http404("Only students of this course could sumbit the assignment.")
     student_id = request.user.id
-    submission_content = request.POST['content']
+    submission_content = request.POST.get('content')
     try:
         submission = Submissions.objects.get(assignment_id=assignment_id, student_id=student_id)
     except Submissions.DoesNotExist:
         submission = None
-    if submission is None:
-        # Insert the submission
-        Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=datetime.now())
-    else:
-        # Update the submission
-        submission.content=submission_content
-        submission.save()
+    try:
+        if submission is None:
+            # Insert the submission
+            Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=datetime.now())
+        else:
+            # Update the submission
+            submission.content=submission_content
+            submission.save()
+    except Exception:
+        raise Http404('Submission doesn''t contain content!')
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
 @login_required
@@ -148,8 +153,13 @@ def score(request, course_id, assignment_id, submission_id):
         raise Http404("Submission does not exist.")
     if submission.assignment.course.teacher.id != request.user.id:
         raise Http404("The submission is not your couse submission. You cannot access it.")
-    score = int(request.POST['score'])
-    if score < 0 or score > 100:
+
+    try:
+        score = request.POST.get('score')
+        score = int(score)
+        if score < 0 or score > 100:
+            raise Exception
+    except Exception:
         raise Http404("The score is illegal! Please check again. Make sure score is an integer between 0 and 100.")
     submission.score = score
     submission.save()
