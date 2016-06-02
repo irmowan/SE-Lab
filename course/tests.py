@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import django
-import views
 from user.models import *
 from course.models import *
 from django.db import models
@@ -12,7 +11,7 @@ from django.test import Client
 
 # Create your tests here.
 
-class CourseIndexTests(TestCase):
+class CourseTests(TestCase):
 	c1pk = ''
 	c2pk = ''
 
@@ -31,12 +30,10 @@ class CourseIndexTests(TestCase):
 		client = Client()
 		response = client.get('/user/1/');
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
-		self.assertEqual(response.url, '/?next=/user/1/')
 		
 		client = Client()
 		client.post('/login/', data={'id': "123456", 'password': "123456"});
 		response = client.get('/user/' + str(self.c1pk) + '/')
-		self.assertEqual(type(response), django.http.response.HttpResponseNotFound)
 		self.assertEqual(response.status_code, 404)
 
 		response = client.get('/user/' + str(self.c2pk) + '/')
@@ -45,7 +42,6 @@ class CourseIndexTests(TestCase):
 		client = Client()
 		client.post('/login/', data={'id': "111111", 'password': "111111"});
 		response = client.get('/user/' + str(self.c2pk) + '/')
-		self.assertEqual(type(response), django.http.response.HttpResponseNotFound)
 		self.assertEqual(response.status_code, 404)
 
 		response = client.get('/user/' + str(self.c1pk) + '/')
