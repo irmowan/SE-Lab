@@ -3,7 +3,7 @@ from django.http import HttpResponse, Http404
 from course.models import Courses, Selections
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-
+import json
 # Create your views here.
 
 @login_required
@@ -18,4 +18,4 @@ def index(request, course_id):
         if not Selections.objects.filter(course_id=course_id, student_id=request.user.id):
             raise Http404("You have not selected the course.")
         data['teacherName'] = course.teacher.name
-    return HttpResponse(str(data))
+    return HttpResponse(json.dumps(data))
