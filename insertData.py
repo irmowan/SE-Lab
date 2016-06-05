@@ -26,11 +26,16 @@ if __name__ == "__main__":
     s1 = Selections.objects.create(course=c1, student=u1)
     s2 = Selections.objects.create(course=c1, student=u4)
     s3 = Selections.objects.create(course=c3, student=u1)
+    s3 = Selections.objects.create(course=c3, student=u4)
     s4 = Selections.objects.create(course=c1, student=u6)
     s5 = Selections.objects.create(course=c1, student=u7)
     s6 = Selections.objects.create(course=c1, student=u8)
 
     ass1 = Assignments.objects.create(course=c1, name="群", description="证明阿贝尔群...", addTime=datetime.now(), deadlineTime=datetime(2016, 12, 1, 23, 59))
     ass2 = Assignments.objects.create(course=c1, name="环", description="证明环的理想...", addTime=datetime.now(), deadlineTime=datetime(2016, 12, 1, 23, 59))
+    ass3 = Assignments.objects.create(course=c3, name="DLX16设计报告", description="WTF", addTime=datetime.now(), deadlineTime=datetime(2016, 12, 1, 23, 59))
+    ass4 = Assignments.objects.create(course=c3, name="DLX16设计报告", description="WTF", addTime=datetime.now(), deadlineTime=datetime(2016, 12, 1, 23, 59))
 
     sub1 = Submissions.objects.create(assignment=ass1, student=u1, content="设群A...", submissionTime=datetime.now(), score=1, comments="")
+    sub2 = Submissions.objects.create(assignment=ass1, student=u4, content="设群A...", submissionTime=datetime.now(), score=12, comments="")
+    sub3 = Submissions.objects.create(assignment=ass3, student=u1, content="cpu16.vhd", submissionTime=datetime.now(), score=100, comments="")

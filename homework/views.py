@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from datetime import datetime
 
 from homework.models import Assignments, Submissions
 from course.models import Courses, Selections
@@ -34,7 +34,7 @@ def create(request, course_id):
     if (name is None or description is None) :
         raise Http404('Invalid request')
 
-    addTime = timezone.now()
+    addTime = datetime.now()
     deadlineTime = request.POST.get('deadlineTime')
     assignment = Assignments.objects.create(course=course, name=name, description=description, addTime=addTime, deadlineTime=deadlineTime)
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
@@ -92,7 +92,14 @@ def update(request, course_id, assignment_id):
     if request.user.type != 'teacher':
         raise Http404("Only the teacher of the course could modify the assignment.")
     new_content = request.POST.get('content')
-    assignment = Assignments.objects.get(pk=assignment_id)
+    if (new_content is None) :
+        raise Http404('Submission doesn''t contain content!')
+    try:
+        assignment = Assignments.objects.get(pk=assignment_id)
+    except Assignments.DoesNotExist:
+        assignment = None
+    if (assignment is None):
+        raise Http404('Course Not Exist!')
     assignment.description = new_content
     assignment.save()
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
@@ -104,20 +111,20 @@ def submit(request, course_id, assignment_id):
         raise Http404("Only students of this course could sumbit the assignment.")
     student_id = request.user.id
     submission_content = request.POST.get('content')
+    if (submission_content is None) :
+        raise Http404('Submission doesn''t contain content!')
     try:
         submission = Submissions.objects.get(assignment_id=assignment_id, student_id=student_id)
     except Submissions.DoesNotExist:
         submission = None
-    try:
-        if submission is None:
-            # Insert the submission
-            Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=timezone.now())
-        else:
-            # Update the submission
-            submission.content=submission_content
-            submission.save()
-    except Exception:
-        raise Http404('Submission doesn''t contain content!')
+    if submission is None:
+        # Insert the submission
+        Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=datetime.now())
+    else:
+        # Update the submission
+        submission.content=submission_content
+        submission.save()
+
     return HttpResponseRedirect(reverse("homework:detail", args=(course_id, assignment_id)))
 
 @login_required
@@ -135,13 +142,13 @@ def submission(request, course_id, assignment_id, submission_id):
     elif request.user.type == 'teacher':
         if submission.assignment.course.teacher.id != request.user.id:
             raise Http404("You cannot access other teacher's course submission.")
-    data["assgignmentName"] = submission.assignment.name
+    data["assignmentName"] = submission.assignment.name
     data["studentName"] = submission.student.name
     data["content"] = submission.content
     data["submissionTime"] = submission.submissionTime
     data["score"] = submission.score
     data["comments"] = submission.comments
-    return HttpResponse(str(data))
+    return JsonResponse(data)
 
 @login_required
 def score(request, course_id, assignment_id, submission_id):
@@ -153,7 +160,7 @@ def score(request, course_id, assignment_id, submission_id):
     except Submissions.DoesNotExist:
         raise Http404("Submission does not exist.")
     if submission.assignment.course.teacher.id != request.user.id:
-        raise Http404("The submission is not your couse submission. You cannot access it.")
+        raise Http404("The submission is not your course submission. You cannot access it.")
 
     try:
         score = request.POST.get('score')
