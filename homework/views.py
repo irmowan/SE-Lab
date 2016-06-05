@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from datetime import datetime
+from django.utils import timezone
 
 from homework.models import Assignments, Submissions
 from course.models import Courses, Selections
@@ -34,7 +34,7 @@ def create(request, course_id):
     if (name is None or description is None) :
         raise Http404('Invalid request')
 
-    addTime = datetime.now()
+    addTime = timezone.now()
     deadlineTime = request.POST.get('deadlineTime')
     assignment = Assignments.objects.create(course=course, name=name, description=description, addTime=addTime, deadlineTime=deadlineTime)
     return HttpResponseRedirect(reverse("homework:index", args=(course_id,)))
@@ -111,7 +111,7 @@ def submit(request, course_id, assignment_id):
     try:
         if submission is None:
             # Insert the submission
-            Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=datetime.now())
+            Submissions.objects.create(assignment_id=assignment_id, student_id=student_id, content=submission_content, submissionTime=timezone.now())
         else:
             # Update the submission
             submission.content=submission_content
