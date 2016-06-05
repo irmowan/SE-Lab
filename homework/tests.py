@@ -36,7 +36,7 @@ class HomeworkTest(TestCase):
 		a1 = Assignments.objects.create(course=c1, name="离散作业1", description="群论", addTime=timezone.now())
 		a2 = Assignments.objects.create(course=c1, name="离散作业2", description="命题逻辑", addTime=timezone.now())
 
-		sub1 = Submissions.objets.create(assignment=a1, student=u3, content="群的定义是...", submissionTime=timezone.now())
+		sub1 = Submissions.objects.create(assignment=a1, student=u3, content="群的定义是...", submissionTime=timezone.now())
 
 		self.c1pk = c1.pk
 		self.c2pk = c2.pk
@@ -71,7 +71,7 @@ class HomeworkTest(TestCase):
 	def test_create_case2(self):
 		''''''
 		pass
-		
+
 	def test_delete_case1(self):
 		'''Delete succeed'''
 		pass
