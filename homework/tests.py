@@ -8,10 +8,8 @@ from django.test import TestCase
 from django.test.utils import setup_test_environment
 from django.test import Client
 from django.utils import timezone
-import json
 from datetime import timedelta
-
-# Create your tests here.
+import json
 
 class HomeworkTest(TestCase):
 	def setUp(self):
@@ -31,6 +29,7 @@ class HomeworkTest(TestCase):
 		s1 = Selections.objects.create(course=c1, student=u3)
 		s2 = Selections.objects.create(course=c1, student=u4)
 		s3 = Selections.objects.create(course=c1, student=u5)
+		s4 = Selections.objects.create(course=c2, student=u6)
 
 		a1 = Assignments.objects.create(id="1", course=c1, name="离散作业1", description="群论", addTime=timezone.now(), deadlineTime=timezone.now()+timedelta(days=30))
 		a2 = Assignments.objects.create(id="2", course=c1, name="离散作业2", description="命题逻辑", addTime=timezone.now(), deadlineTime=timezone.now()+timedelta(days=30))
@@ -163,39 +162,38 @@ class HomeworkTest(TestCase):
 		'''合法操作：删除'''
 		client = Client()
 		client.post('/login/', data={'id': '12345678', 'password': '12345678'})
-		response = client.post('user/1/homework/delete/', data={'id': 2})
+		response = client.post('/user/1/homework/delete/', data={'id': 2})
 		# TODO: fix
-		self.assertQuerysetEqual(Assignments.objects.all(), [repr(a) for a in [self.a1, self.a3]])
+		self.assertQuerysetEqual(Assignments.objects.all(), repr(self.a1))
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 
 	def test_detail_case1(self):
 		'''未登录'''
 		client = Client()
-		response = client.get('user/1/homework/1/')
+		response = client.get('/user/1/homework/1/')
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 
 	def test_detail_case2(self):
 		'''非本课程学生'''
 		client = Client()
-		client.post('/login/', data={'id': '111111', 'password': '111111'})
-		response = client.get('user/1/homework/1/')
+		client.post('/login/', data={'id': '111114', 'password': '111111'})
+		response = client.get('/user/1/homework/1/')
 		self.assertEqual(response.status_code, 404)
 
 	def test_detail_case3(self):
 		'''课程号和作业号不对应'''
 		client = Client()
 		client.post('/login/', data={'id': '111111', 'password': '111111'})
-		response = client.get('user/2/homework/1/')
+		response = client.get('/user/2/homework/1/')
 		self.assertEqual(response.status_code, 404)
 
 	def test_detail_case4(self):
 		'''成功查看'''
 		client = Client()
 		client.post('/login/', data={'id': '111111', 'password': '111111'})
-		response = client.get('user/1/homework/1/')
+		response = client.post('/user/1/homework/1/')
 		data = response.json()
 		self.assertEqual(data.get('assignmentName'), '离散作业1')
-
 
 	def test_update_case1(self):
 		'''没登录'''
@@ -203,7 +201,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/update/'
 								, data = {});
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
-		pass
 
 	def test_update_case2(self):
 		'''学生身份登陆'''
@@ -212,7 +209,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/update/'
 								, data = {});
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_update_case3(self):
 		'''教师身份没写content'''
@@ -221,8 +217,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/update/'
 								, data = {});
 		self.assertEqual(response.status_code, 404)
-
-		pass
 
 	def test_update_case4(self):
 		'''合法操作'''
@@ -240,15 +234,12 @@ class HomeworkTest(TestCase):
 		self.assertEqual((assignment is None), False)
 		self.assertEqual(assignment.description, 'Too Young Too Simple, Sometimes Naive')
 
-		pass
-
 	def test_submit_case1(self):
 		'''没登陆'''
 		client = Client()
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submit/'
 								, data = {});
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
-		pass
 
 	def test_submit_case2(self):
 		'''教师身份登陆'''
@@ -257,7 +248,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submit/'
 								, data = {});
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_submit_case3(self):
 		'''忘记填写content'''
@@ -266,7 +256,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submit/'
 								, data = {});
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_submit_case4(self):
 		'''没选这门课的人'''
@@ -275,7 +264,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submit/'
 								, data = {'content': 'Wow Such Homework So Easy'});
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_submit_case4(self):
 		'''合法操作'''
@@ -294,14 +282,11 @@ class HomeworkTest(TestCase):
 		self.assertEqual((submission is None), False)
 		self.assertEqual(submission.content, 'Wow Such Homework So Easy')
 
-		pass
-
 	def test_submission_case1(self):
 		'''没登录'''
 		client = Client()
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/');
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
-		pass
 
 	def test_submission_case2(self):
 		'''没选这门课的人'''
@@ -309,7 +294,6 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "111114", 'password': "111111"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_submission_case3(self):
 		'''其他课的老师不能访问'''
@@ -317,7 +301,6 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "123456", 'password': "123456"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_submission_case4(self):
 		'''合法操作(学生)'''
@@ -330,8 +313,6 @@ class HomeworkTest(TestCase):
 		self.assertEqual(data.get('content'), "群的定义是...")
 		#self.assertEqual(data.get('submissionTime'), str(self.subtime))
 
-		pass
-
 	def test_submission_case5(self):
 		'''合法操作(老师)'''
 		client = Client()
@@ -343,10 +324,6 @@ class HomeworkTest(TestCase):
 		self.assertEqual(data.get('content'), "群的定义是...")
 		#self.assertEqual(data.get('submissionTime'), str(self.subtime))
 
-		pass
-
-
-
 	def test_score_case1(self):
 		'''没登录'''
 		client = Client()
@@ -357,7 +334,6 @@ class HomeworkTest(TestCase):
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 		submission = Submissions.objects.get(pk=self.sub1pk)
 		self.assertEqual((submission.score == 100), False);
-		pass
 
 	def test_score_case2(self):
 		'''学生不能打分'''
@@ -365,9 +341,8 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "111111", 'password': "111111"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
-#http://127.0.0.1:8000/user/1/homework/1/submission/2/score/
+	#http://127.0.0.1:8000/user/1/homework/1/submission/2/score/
 	##wrong teacher
 	def test_score_case3(self):
 		'''其他课的老师不能打分'''
@@ -375,7 +350,6 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "123456", 'password': "123456"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_score_case4(self):
 		'''提交编号不存在'''
@@ -383,7 +357,6 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "12345678", 'password': "12345678"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + '2147483647' + '/score/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_score_case5(self):
 		'''提交不属于该课程'''
@@ -391,7 +364,6 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "123456", 'password': "123456"});
 		response = client.get('/user/' + str(self.c2pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/');
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_score_case6(self):
 		'''忘记填写分数'''
@@ -400,7 +372,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/',
 							 data={})
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	def test_score_case7(self):
 		'''分数不在范围内1'''
@@ -409,7 +380,6 @@ class HomeworkTest(TestCase):
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/',
 							 data={'score': '-1'})
 		self.assertEqual(response.status_code, 404)
-		pass
 
 	# def test_score_case8(self):
 	# 	'''分数不在范围内2'''
@@ -418,7 +388,6 @@ class HomeworkTest(TestCase):
 	# 	response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/score/',
 	# 						 data={'score': '101'})
 	# 	self.assertEqual(response.status_code, 404)
-	# 	pass
 
 	def test_score_case9(self):
 		'''合法操作1'''
@@ -431,7 +400,6 @@ class HomeworkTest(TestCase):
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 		submission = Submissions.objects.get(pk=self.sub1pk)
 		self.assertEqual(submission.score, 100)
-		pass
 
 	# def test_score_case10(self):
 	# 	'''合法操作2'''
@@ -444,4 +412,3 @@ class HomeworkTest(TestCase):
 	# 	self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 	# 	submission = Submissions.objects.get(pk=self.sub1pk)
 	# 	self.assertEqual(submission.score, 0)
-	# 	pass
