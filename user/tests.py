@@ -18,6 +18,7 @@ class UserViewTests(TestCase):
 		u2.save()
 
 	def test_login_case1(self):
+		'''正常登陆'''
 		client = Client()
 		response = client.post('/login/', data={'id': "123456", 'password': "123456"})
 		self.assertEqual(response.status_code, 302)
@@ -25,6 +26,7 @@ class UserViewTests(TestCase):
 		self.assertEqual(response.url, '/user/')
 
 	def test_login_case2(self):
+		'''用户名或密码错误'''
 		client = Client()
 		response = client.post('/login/', data={'id': "123456", 'password': "1234567"})
 		self.assertEqual(response.status_code, 200)
@@ -32,6 +34,7 @@ class UserViewTests(TestCase):
 		self.assertEqual(response.content, b"Login fail!")
 
 	def test_login_case3(self):
+		'''被禁止登陆的用户'''
 		client = Client()
 		response = client.post('/login/', data={'id': "123457", 'password': "123457"})
 		self.assertEqual(response.status_code, 200)
