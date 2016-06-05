@@ -164,7 +164,7 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': '12345678', 'password': '12345678'})
 		response = client.post('/user/1/homework/delete/', data={'id': 2})
 		# TODO: fix
-		self.assertQuerysetEqual(Assignments.objects.all(), repr(self.a1))
+		self.assertQuerysetEqual(Assignments.objects.all(), [repr(x) for x in [self.a1, self.a3]], ordered = False)
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 
 	def test_detail_case1(self):
@@ -213,7 +213,7 @@ class HomeworkTest(TestCase):
 	def test_update_case3(self):
 		'''教师身份没写content'''
 		client = Client()
-		client.post('/login/', data={'id': "123456", 'password': "123456"});
+		client.post('/login/', data={'id': "12345678", 'password': "12345678"});
 		response = client.post('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/update/'
 								, data = {});
 		self.assertEqual(response.status_code, 404)
