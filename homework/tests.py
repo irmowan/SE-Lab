@@ -127,7 +127,7 @@ class HomeworkTest(TestCase):
 			new_assignment = Assignments.objects.get(name='补充作业')
 		except Assignments.DoesNotExist:
 			new_assignment = None
-		self.assertEqual(new_assignment.name, '补充作业')
+		self.assertEqual(new_assignment.name, u'补充作业')
 
 	def test_delete_case1(self):
 		'''未登录'''
@@ -193,7 +193,7 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': '111111', 'password': '111111'})
 		response = client.post('/user/1/homework/1/')
 		data = response.json()
-		self.assertEqual(data.get('assignmentName'), '离散作业1')
+		self.assertEqual(data.get('assignmentName'), u'离散作业1')
 
 	def test_update_case1(self):
 		'''没登录'''
@@ -308,9 +308,9 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "111111", 'password': "111111"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/');
 		data = response.json()
-		self.assertEqual(data.get('assignmentName'), "离散作业1")
-		self.assertEqual(data.get('studentName'), "路人甲")
-		self.assertEqual(data.get('content'), "群的定义是...")
+		self.assertEqual(data.get('assignmentName'), u"离散作业1")
+		self.assertEqual(data.get('studentName'), u"路人甲")
+		self.assertEqual(data.get('content'), u"群的定义是...")
 		#self.assertEqual(data.get('submissionTime'), str(self.subtime))
 
 	def test_submission_case5(self):
@@ -319,9 +319,9 @@ class HomeworkTest(TestCase):
 		client.post('/login/', data={'id': "12345678", 'password': "12345678"});
 		response = client.get('/user/' + str(self.c1pk) + '/homework/' + str(self.a1pk) + '/submission/' + str(self.sub1pk) + '/');
 		data = response.json()
-		self.assertEqual(data.get('assignmentName'), "离散作业1")
-		self.assertEqual(data.get('studentName'), "路人甲")
-		self.assertEqual(data.get('content'), "群的定义是...")
+		self.assertEqual(data.get('assignmentName'), u"离散作业1")
+		self.assertEqual(data.get('studentName'), u"路人甲")
+		self.assertEqual(data.get('content'), u"群的定义是...")
 		#self.assertEqual(data.get('submissionTime'), str(self.subtime))
 
 	def test_score_case1(self):
