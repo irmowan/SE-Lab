@@ -20,7 +20,7 @@ def index(request, course_id):
     if request.user.type == "student":
         try:
             selection = Selections.objects.get(course=course_id, student=request.user.id)
-        except Submissions.DoesNotExist:
+        except Selections.DoesNotExist:
             raise Http404("You have not sign up this course.")
     return HttpResponse("This is the index page of homework of course {}.".format(course_id))
 
@@ -93,7 +93,7 @@ def detail(request, course_id, assignment_id):
             raise Http404("You can't access assignments of others' course.")
         submissions = Submissions.objects.filter(assignment_id=assignment_id)
         data["submissions"] = [{"name": x.student.name, "score": x.score} for x in submissions]
-    return HttpResponse(str(data))
+    return JSONResponse(data)
 
 @login_required
 def update(request, course_id, assignment_id):
