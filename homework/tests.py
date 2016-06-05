@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.test.utils import setup_test_environment
 from django.test import Client
 from django.utils import timezone
+from datetime import timedelta
 
 # Create your tests here.
 
@@ -33,18 +34,37 @@ class HomeworkTest(TestCase):
 		s2 = Selections.objects.create(course=c1, student=u4)
 		s3 = Selections.objects.create(course=c1, student=u5)
 
-		a1 = Assignments.objects.create(course=c1, name="离散作业1", description="群论", addTime=timezone.now())
-		a2 = Assignments.objects.create(course=c1, name="离散作业2", description="命题逻辑", addTime=timezone.now())
+		a1 = Assignments.objects.create(course=c1, name="离散作业1", description="群论", addTime=timezone.now(), deadlineTime=timezone.now()+timedelta(days=30))
+		a2 = Assignments.objects.create(course=c1, name="离散作业2", description="命题逻辑", addTime=timezone.now(), deadlineTime=timezone.now()+timedelta(days=30))
 
 		sub1 = Submissions.objects.create(assignment=a1, student=u3, content="群的定义是...", submissionTime=timezone.now())
 
 		self.c1pk = c1.pk
 		self.c2pk = c2.pk
 
-	def test_index(self):
-		'''Test index page'''
+	def test_index_case1(self):
+		'''User not login in'''
 		client = Client()
-		response = client.get('/user/1/')
+		response = client.get('/user/1/homework/');
+		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
+
+	def test_index_case2(self):
+		'''Test index page of teacher'''
+		client = Client()
+		client.post('/login/', data={'id': "12345678", 'password': "12345678"});
+		response = client.get('/user/1/homework/')
+		self.assertEqual(response.status_code, 200)
+		response = client.get('/user/2/homework/')
+		self.assertEqual(response.status_code, 404)
+
+	def test_index_case3(self):
+		'''Test index page of student'''
+		client = Client()
+		client.post('/login/', data={'id': "111111" , 'password': "111111"})
+		response = client.get('/user/1/homework/')
+		self.assertEqual(response.status_code, 200)
+		response = client.get('/user/2/homework/')
+		self.assertEqual(response.status_code, 404)
 
 	def test_new(self):
 		'''New a course'''
