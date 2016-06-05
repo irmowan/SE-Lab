@@ -35,14 +35,14 @@ class CourseTests(TestCase):
 		self.c2pk = c2.pk
 
 	def test_index_case1(self):
-		"""test not-login-in user"""
+		"""用户未登录"""
 		client = Client()
 		response = client.get('/user/1/');
 		self.assertEqual(response.status_code, 302)
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 
 	def test_index_case2(self):
-		"""test teacher"""
+		"""测试教师"""
 		client = Client()
 		client.post('/login/', data={'id': "123456", 'password': "123456"})
 		response = client.get('/user/' + str(self.c1pk) + '/')
@@ -55,7 +55,7 @@ class CourseTests(TestCase):
 		self.assertEqual(data['count'], 2)
 
 	def test_index_case3(self):
-		"""test student"""
+		"""测试学生"""
 		client = Client()
 		client.post('/login/', data={'id': "111111", 'password': "111111"})
 		response = client.get('/user/' + str(self.c2pk) + '/')
