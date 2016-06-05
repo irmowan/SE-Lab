@@ -44,7 +44,7 @@ class CourseTests(TestCase):
 	def test_index_case2(self):
 		"""测试教师"""
 		client = Client()
-		client.post('/login/', data={'id': "123456", 'password': "123456"})
+		client.post('/login/', 	)
 		response = client.get('/user/' + str(self.c1pk) + '/')
 		self.assertEqual(response.status_code, 404)
 
