@@ -51,7 +51,7 @@ class CourseTests(TestCase):
 		response = client.get('/user/' + str(self.c2pk) + '/')
 		self.assertEqual(type(response), django.http.response.HttpResponse)
 		data = json.loads(response.content.decode('utf-8'))
-		self.assertEqual(data['name'], '操作系统')
+		self.assertEqual(data['name'], u'操作系统')
 		self.assertEqual(data['count'], 2)
 
 	def test_index_case3(self):
@@ -64,5 +64,5 @@ class CourseTests(TestCase):
 		response = client.get('/user/' + str(self.c1pk) + '/')
 		self.assertEqual(type(response), django.http.response.HttpResponse)
 		data = json.loads(response.content.decode('utf-8'))
-		self.assertEqual(data['name'], '离散数学')
-		self.assertEqual(data['teacherName'], '赵一鸣')
+		self.assertEqual(data['name'], u'离散数学')
+		self.assertEqual(data['teacherName'], u'赵一鸣')
