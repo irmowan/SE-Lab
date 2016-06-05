@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import django
-from models import *
+from user.models import *
 from django.db import models
 from django.test import TestCase
 from django.test.utils import setup_test_environment
@@ -17,17 +17,23 @@ class UserViewTests(TestCase):
 		u2.is_active = False
 		u2.save()
 
-	def test_login(self):
+	def test_login_case1(self):
 		client = Client()
 		response = client.post('/login/', data={'id': "123456", 'password': "123456"})
+		self.assertEqual(response.status_code, 302)
 		self.assertEqual(type(response), django.http.response.HttpResponseRedirect)
 		self.assertEqual(response.url, '/user/')
+
+	def test_login_case2(self):
 		client = Client()
 		response = client.post('/login/', data={'id': "123456", 'password': "1234567"})
+		self.assertEqual(response.status_code, 200)
 		self.assertEqual(type(response), django.http.response.HttpResponse)
-		self.assertEqual(response.content, "Login fail!")
+		self.assertEqual(response.content, b"Login fail!")
+
+	def test_login_case3(self):
 		client = Client()
 		response = client.post('/login/', data={'id': "123457", 'password': "123457"})
+		self.assertEqual(response.status_code, 200)
 		self.assertEqual(type(response), django.http.response.HttpResponse)
-		self.assertEqual(response.content, "Fail: a disabled account")
-		
+		self.assertEqual(response.content, b"Fail: a disabled account")
