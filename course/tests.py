@@ -44,7 +44,7 @@ class CourseTests(TestCase):
 	def test_index_case2(self):
 		"""test teacher"""
 		client = Client()
-		client.post('/login/', data={'id': "123456", 'password': "123456"});
+		client.post('/login/', data={'id': "123456", 'password': "123456"})
 		response = client.get('/user/' + str(self.c1pk) + '/')
 		self.assertEqual(response.status_code, 404)
 
@@ -57,7 +57,7 @@ class CourseTests(TestCase):
 	def test_index_case3(self):
 		"""test student"""
 		client = Client()
-		client.post('/login/', data={'id': "111111", 'password': "111111"});
+		client.post('/login/', data={'id': "111111", 'password': "111111"})
 		response = client.get('/user/' + str(self.c2pk) + '/')
 		self.assertEqual(response.status_code, 404)
 

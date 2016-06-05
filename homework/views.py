@@ -13,6 +13,15 @@ from course.models import Courses, Selections
 # Unfinished
 @login_required
 def index(request, course_id):
+    course = get_object_or_404(Courses, pk=course_id)
+    if request.user.type == "teacher":
+        if course.teacher.id != request.user.id:
+            raise Http404("You can't access other teacher's course.")
+    if request.user.type == "student":
+        try:
+            selection = Selections.objects.get(course=course_id, student=request.user.id)
+        except Submissions.DoesNotExist:
+            raise Http404("You have not sign up this course.")
     return HttpResponse("This is the index page of homework of course {}.".format(course_id))
 
 @login_required
