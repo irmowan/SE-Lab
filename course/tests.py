@@ -44,14 +44,13 @@ class CourseTests(TestCase):
 	def test_index_case2(self):
 		"""测试教师"""
 		client = Client()
-		client.post('/login/', 	)
+		client.post('/login/', data={'id': "123456", 'password': "123456"})
 		response = client.get('/user/' + str(self.c1pk) + '/')
 		self.assertEqual(response.status_code, 404)
 
 		response = client.get('/user/' + str(self.c2pk) + '/')
 		self.assertEqual(type(response), django.http.response.HttpResponse)
 		data = json.loads(response.content.decode('utf-8'))
-		self.assertEqual(data['name'], '操作系统')
 		self.assertEqual(data['count'], 2)
 
 	def test_index_case3(self):
@@ -64,5 +63,3 @@ class CourseTests(TestCase):
 		response = client.get('/user/' + str(self.c1pk) + '/')
 		self.assertEqual(type(response), django.http.response.HttpResponse)
 		data = json.loads(response.content.decode('utf-8'))
-		self.assertEqual(data['name'], '离散数学')
-		self.assertEqual(data['teacherName'], '赵一鸣')
